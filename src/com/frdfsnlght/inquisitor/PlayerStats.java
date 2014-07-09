@@ -352,7 +352,7 @@ public final class PlayerStats {
 
 			Utils.debug("totalTime: " + stats.getFloat("totalTime"));
 
-			stats.flushSync();
+			stats.flush();
 		} catch (Exception ex) {
 			Utils.severe("OnPlayerJoin Exception message: " + ex.getMessage());
 			StringWriter sw = new StringWriter();
@@ -378,7 +378,7 @@ public final class PlayerStats {
 				stats.set("lastQuit", new Date());
 			}
 			stats.set("online", false);
-			stats.flushSync();
+			stats.flush();
 
 			group.removeStatistics(player.getName());
 			playerStates.remove(player.getName());
@@ -427,7 +427,7 @@ public final class PlayerStats {
 		stats.set("lastDeath", new Date());
 		stats.set("lastDeathMessage", message);
 		stats.incr("deathCauses", Utils.titleCase(cause.name()));
-		stats.flushSync();
+		stats.flush();
 
 		onPlayerMove(player, player.getLocation());
 		PlayerState state = playerStates.get(player.getName());
