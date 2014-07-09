@@ -56,8 +56,13 @@ public final class EntityListenerImpl implements Listener {
         Entity killerEnt = killEvent.getDamager();
 
         if (killerEnt instanceof Projectile)
-            killerEnt = ((Projectile)killerEnt).getShooter();
+        {
+        	if( ! (killerEnt instanceof Entity) )
+        		return;
+        	
+        	killerEnt = (Entity) ((Projectile)killerEnt).getShooter();
 
+        }
         if (! (killerEnt instanceof Player)) return;
 
         Player player = (Player)killerEnt;
