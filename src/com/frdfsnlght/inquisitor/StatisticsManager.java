@@ -16,6 +16,7 @@
 package com.frdfsnlght.inquisitor;
 
 import com.frdfsnlght.inquisitor.DB.DBListener;
+
 import java.sql.Clob;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -310,11 +311,11 @@ public final class StatisticsManager {
 
     public static class Job {
 
-        private String tableName;
-        private Map<String,Object> data;
-        private Object keyValue;
-        private String keyColumn;
-        private boolean committed = false;
+        protected String tableName;
+        protected Map<String,Object> data;
+        protected Object keyValue;
+        protected String keyColumn;
+        protected boolean committed = false;
 
         public Job(String tableName, Map<String,Object> data, Object keyValue) {
             this(tableName, data, keyValue, null);
@@ -335,42 +336,57 @@ public final class StatisticsManager {
         public boolean isCommitted() {
             return committed;
         }
+        
+        
+        
+        protected PreparedStatement _commit() throws SQLException
+        {
+        	PreparedStatement stmt = null;
+        	
+        	StringBuilder sql = new StringBuilder();
+        	List<String> cols = new ArrayList<String>(data.keySet());
+        	
+            if (keyColumn == null) {
+                // insert
+                sql.append("INSERT INTO ").append(DB.tableName(tableName)).append(" (");
+                for (String col : cols)
+                    sql.append('`').append(col).append("`,");
+                sql.deleteCharAt(sql.length() - 1);
+                sql.append(") VALUES (");
+                for (String col : cols)
+                    sql.append("?,");
+                sql.deleteCharAt(sql.length() - 1);
+                sql.append(")");
+                stmt = DB.prepare(sql.toString());
+                int colNum = 1;
+                for (String col : cols)
+                    setParameter(stmt, colNum++, data.get(col));
+            } else {
+                // update
+                sql.append("UPDATE ").append(DB.tableName(tableName)).append(" SET ");
+                for (String col : cols)
+                    sql.append('`').append(col).append("`=?,");
+                sql.deleteCharAt(sql.length() - 1);
+                sql.append(" WHERE `").append(keyColumn).append("`=?");
+                stmt = DB.prepare(sql.toString());
+                int colNum = 1;
+                for (String col : cols)
+                    setParameter(stmt, colNum++, data.get(col));
+                setParameter(stmt, colNum++, keyValue);
+            }
+            stmt.executeUpdate();
+            
+            return stmt;
+        }
 
         void commit() {
-            PreparedStatement stmt = null;
-            StringBuilder sql = new StringBuilder();
-            List<String> cols = new ArrayList<String>(data.keySet());
+            
+        	PreparedStatement stmt = null;
+        	
             try {
-                if (keyColumn == null) {
-                    // insert
-                    sql.append("INSERT INTO ").append(DB.tableName(tableName)).append(" (");
-                    for (String col : cols)
-                        sql.append('`').append(col).append("`,");
-                    sql.deleteCharAt(sql.length() - 1);
-                    sql.append(") VALUES (");
-                    for (String col : cols)
-                        sql.append("?,");
-                    sql.deleteCharAt(sql.length() - 1);
-                    sql.append(")");
-                    stmt = DB.prepare(sql.toString());
-                    int colNum = 1;
-                    for (String col : cols)
-                        setParameter(stmt, colNum++, data.get(col));
-                } else {
-                    // update
-                    sql.append("UPDATE ").append(DB.tableName(tableName)).append(" SET ");
-                    for (String col : cols)
-                        sql.append('`').append(col).append("`=?,");
-                    sql.deleteCharAt(sql.length() - 1);
-                    sql.append(" WHERE `").append(keyColumn).append("`=?");
-                    stmt = DB.prepare(sql.toString());
-                    int colNum = 1;
-                    for (String col : cols)
-                        setParameter(stmt, colNum++, data.get(col));
-                    setParameter(stmt, colNum++, keyValue);
-                }
-                stmt.executeUpdate();
 
+            	stmt = _commit();
+            	
             } catch (SQLException se) {
                 Utils.severe("SQLException while committing statistics for '%s' in '%s': %s", keyValue, tableName, se.getMessage());
             } finally {
@@ -384,7 +400,7 @@ public final class StatisticsManager {
             }
         }
 
-        private void setParameter(PreparedStatement stmt, int colNum, Object val) throws SQLException {
+        protected void setParameter(PreparedStatement stmt, int colNum, Object val) throws SQLException {
             if (val == null) stmt.setString(colNum++, null);
             else if (val instanceof String) stmt.setString(colNum++, (String)val);
             else if (val instanceof Boolean) stmt.setInt(colNum++, ((Boolean)val).booleanValue() ? 1 : 0);
@@ -400,6 +416,42 @@ public final class StatisticsManager {
                 throw new SQLException(val.getClass().getName() + " is an unsupported parameter type");
         }
 
+    }
+    
+    
+    public static class JoinJob extends Job {
+
+    	private String uniqueId = null;
+    	
+		public JoinJob(String tableName, String keyColumn, String playerName, String uniqueId)
+		{
+			super(tableName, null, playerName, keyColumn);
+			
+			this.uniqueId = uniqueId;
+		}
+    	
+		protected PreparedStatement _commit() throws SQLException
+		{
+			PreparedStatement stmt = null;
+			StringBuilder sql = new StringBuilder();
+			sql.append("UPDATE `").append(tableName).append("` SET `");
+			sql.append(keyColumn).append("`=?, `uuid`=? WHERE `");
+			sql.append(keyColumn).append("`=? OR `uuid`=?");
+			stmt = DB.prepare(sql.toString());
+			
+			//Utils.info("JoinJob: " + sql.toString());
+			
+			stmt.setString(1, keyValue.toString());
+			stmt.setString(2, uniqueId);
+			stmt.setString(3,keyValue.toString());
+			stmt.setString(4, uniqueId);
+			//Utils.info("JoinJob: \"%s\" | %s, %s", sql.toString(), keyValue.toString(), uniqueId);
+			
+
+            stmt.executeUpdate();
+            
+            return stmt;
+		}
     }
 
 

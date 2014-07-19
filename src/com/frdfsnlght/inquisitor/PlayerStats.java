@@ -17,6 +17,7 @@ package com.frdfsnlght.inquisitor;
 
 import com.frdfsnlght.inquisitor.Statistic.Type;
 import com.frdfsnlght.inquisitor.StatisticsGroup.BeforeFlushListener;
+import com.frdfsnlght.inquisitor.StatisticsManager.JoinJob;
 import com.frdfsnlght.inquisitor.StatisticsManager.StatisticsManagerListener;
 
 import java.io.PrintWriter;
@@ -37,6 +38,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -322,17 +324,27 @@ public final class PlayerStats {
 		try {
 			//Very simply update statement that will allow players to add their UUIDs to the db during the
 			// conversion process, then once a name change happens it will update it based on the uuid matching.
-			PreparedStatement stmt = null;
-			StringBuilder sql = new StringBuilder();
-			sql.append("UPDATE `").append(group.getName()).append("` SET `");
-			sql.append(group.getKeyName()).append("`=?, `uuid`=? WHERE `");
-			sql.append(group.getKeyName()).append("`=? OR `uuid`=?");
-			stmt = DB.prepare(sql.toString());
-			stmt.setString(1, player.getName());
-			stmt.setString(2, player.getUniqueId().toString());
-			stmt.setString(3, player.getName());
-			stmt.setString(4, player.getUniqueId().toString());
-			stmt.execute();
+//			PreparedStatement stmt = null;
+//			StringBuilder sql = new StringBuilder();
+//			sql.append("UPDATE `").append(group.getName()).append("` SET `");
+//			sql.append(group.getKeyName()).append("`=?, `uuid`=? WHERE `");
+//			sql.append(group.getKeyName()).append("`=? OR `uuid`=?");
+//			stmt = DB.prepare(sql.toString());
+//			stmt.setString(1, player.getName());
+//			stmt.setString(2, player.getUniqueId().toString());
+//			stmt.setString(3, player.getName());
+//			stmt.setString(4, player.getUniqueId().toString());
+//			stmt.execute();
+			
+//			Utils.info("onPlayerJoin: " + sql.toString());
+			
+
+			StatisticsManager.submitJob(
+					new JoinJob(
+							group.getName(),
+							group.getKeyName(),
+							player.getName(),
+							player.getUniqueId().toString() ) );
 			
 			Statistics stats = group.getStatistics(player.getName());
 			stats.set("uuid", player.getUniqueId().toString());
