@@ -453,7 +453,7 @@ public final class StatisticsManager {
 		    
 		    return stmt;
 		}
-		}
+	}
 
 
 }
