@@ -430,6 +430,7 @@ public final class StatisticsManager {
 			this.uniqueId = uniqueId;
 		}
     	
+		@Override
 		protected PreparedStatement _commit() throws SQLException
 		{
 			PreparedStatement stmt = null;
@@ -447,12 +448,12 @@ public final class StatisticsManager {
 			stmt.setString(4, uniqueId);
 			//Utils.info("JoinJob: \"%s\" | %s, %s", sql.toString(), keyValue.toString(), uniqueId);
 			
-
-            stmt.executeUpdate();
-            
-            return stmt;
+		
+		    stmt.executeUpdate();
+		    
+		    return stmt;
 		}
-    }
+		}
 
 
 }
