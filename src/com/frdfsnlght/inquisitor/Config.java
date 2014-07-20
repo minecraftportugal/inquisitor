@@ -32,6 +32,7 @@ public final class Config {
 
     static {
         OPTIONS.add("debug");
+        OPTIONS.add("debugTimings");
 
         options = new Options(Config.class, OPTIONS, "inq", new OptionsListener() {
             @Override
