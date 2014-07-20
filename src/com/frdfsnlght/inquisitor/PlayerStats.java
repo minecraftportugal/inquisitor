@@ -39,6 +39,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -313,6 +314,12 @@ public final class PlayerStats {
 	}
 
 	public static void onPlayerJoin(Player player) {
+		
+		long _tStart=0,_tCheck1=0,_tCheck2=0,_tEnd;
+		
+		if( Config.getDebugTimings() )
+			_tStart = System.currentTimeMillis();
+		
 		if (!isStatsPlayer(player))
 			return;
 		if (ignoredPlayerJoins.contains(player.getName())) {
@@ -320,6 +327,7 @@ public final class PlayerStats {
 			return;
 		}
 		Utils.debug("onPlayerJoin '%s'", player.getName());
+
 
 		try {
 			//Very simply update statement that will allow players to add their UUIDs to the db during the
@@ -337,7 +345,6 @@ public final class PlayerStats {
 //			stmt.execute();
 			
 //			Utils.info("onPlayerJoin: " + sql.toString());
-			
 
 			StatisticsManager.submitJob(
 					new JoinJob(
@@ -346,7 +353,14 @@ public final class PlayerStats {
 							player.getName(),
 							player.getUniqueId().toString() ) );
 			
+			if( Config.getDebugTimings() )
+				_tCheck1 = System.currentTimeMillis();
+			
 			Statistics stats = group.getStatistics(player.getName());
+			
+			if( Config.getDebugTimings() )
+				_tCheck2 = System.currentTimeMillis();
+			
 			stats.set("uuid", player.getUniqueId().toString());
 			stats.incr("joins");
 			stats.set("lastJoin", new Date());
@@ -371,7 +385,14 @@ public final class PlayerStats {
 			ex.printStackTrace(new PrintWriter(sw));
 			Utils.severe("Stack Trace: " + sw.toString());
 		}
-
+		
+		if( Config.getDebugTimings() )
+		{
+			_tEnd = System.currentTimeMillis();
+			
+			Utils.info("**Timings [P: %s, TT: %dms, CP1: %dms, CP2: %dms, CP3: %dms]", player.getName(),
+					(_tEnd-_tStart), (_tCheck1-_tStart), (_tCheck2-_tCheck1),(_tEnd-_tCheck2) );
+		}
 	}
 
 	public static void onPlayerQuit(Player player) {

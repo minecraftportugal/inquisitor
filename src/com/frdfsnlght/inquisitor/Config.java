@@ -109,9 +109,17 @@ public final class Config {
     public static boolean getDebug() {
         return config.getBoolean("global.debug", false);
     }
+    
+    public static boolean getDebugTimings() {
+        return config.getBoolean("global.debugTimings", false);
+    }
 
     public static void setDebug(boolean b) {
         config.set("global.debug", b);
+    }
+    
+    public static void setDebugTimings(boolean b) {
+        config.set("global.debugTimings", b);
     }
 
 
