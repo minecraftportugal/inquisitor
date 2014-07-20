@@ -315,7 +315,7 @@ public final class PlayerStats {
 
 	public static void onPlayerJoin(Player player) {
 		
-		long _tStart=0,_tCheck1=0,_tCheck2=0,_tEnd;
+		long _tStart=0,_tCheck1=0,_tCheck2=0,_tCheck3=0,_tEnd;
 		
 		if( Config.getDebugTimings() )
 			_tStart = System.currentTimeMillis();
@@ -327,39 +327,40 @@ public final class PlayerStats {
 			return;
 		}
 		Utils.debug("onPlayerJoin '%s'", player.getName());
+		
+		if( Config.getDebugTimings() )
+			_tCheck1 = System.currentTimeMillis();
 
 
 		try {
 			//Very simply update statement that will allow players to add their UUIDs to the db during the
 			// conversion process, then once a name change happens it will update it based on the uuid matching.
-//			PreparedStatement stmt = null;
-//			StringBuilder sql = new StringBuilder();
-//			sql.append("UPDATE `").append(group.getName()).append("` SET `");
-//			sql.append(group.getKeyName()).append("`=?, `uuid`=? WHERE `");
-//			sql.append(group.getKeyName()).append("`=? OR `uuid`=?");
-//			stmt = DB.prepare(sql.toString());
-//			stmt.setString(1, player.getName());
-//			stmt.setString(2, player.getUniqueId().toString());
-//			stmt.setString(3, player.getName());
-//			stmt.setString(4, player.getUniqueId().toString());
-//			stmt.execute();
-			
-//			Utils.info("onPlayerJoin: " + sql.toString());
+			PreparedStatement stmt = null;
+			StringBuilder sql = new StringBuilder();
+			sql.append("UPDATE `").append(group.getName()).append("` SET `");
+			sql.append(group.getKeyName()).append("`=?, `uuid`=? WHERE `");
+			sql.append(group.getKeyName()).append("`=? OR `uuid`=?");
+			stmt = DB.prepare(sql.toString());
+			stmt.setString(1, player.getName());
+			stmt.setString(2, player.getUniqueId().toString());
+			stmt.setString(3, player.getName());
+			stmt.setString(4, player.getUniqueId().toString());
+			stmt.execute();
 
-			StatisticsManager.submitJob(
-					new JoinJob(
-							group.getName(),
-							group.getKeyName(),
-							player.getName(),
-							player.getUniqueId().toString() ) );
+//			StatisticsManager.submitJob(
+//					new JoinJob(
+//							group.getName(),
+//							group.getKeyName(),
+//							player.getName(),
+//							player.getUniqueId().toString() ) );
 			
 			if( Config.getDebugTimings() )
-				_tCheck1 = System.currentTimeMillis();
+				_tCheck2 = System.currentTimeMillis();
 			
 			Statistics stats = group.getStatistics(player.getName());
 			
 			if( Config.getDebugTimings() )
-				_tCheck2 = System.currentTimeMillis();
+				_tCheck3 = System.currentTimeMillis();
 			
 			stats.set("uuid", player.getUniqueId().toString());
 			stats.incr("joins");
@@ -390,8 +391,8 @@ public final class PlayerStats {
 		{
 			_tEnd = System.currentTimeMillis();
 			
-			Utils.info("**Timings [P: %s, TT: %dms, CP1: %dms, CP2: %dms, CP3: %dms]", player.getName(),
-					(_tEnd-_tStart), (_tCheck1-_tStart), (_tCheck2-_tCheck1),(_tEnd-_tCheck2) );
+			Utils.info("**Timings [P: %s, TT: %dms, CP1: %dms, CP2: %dms, CP3: %dms,  CP4: %dms]", player.getName(),
+					(_tEnd-_tStart), (_tCheck1-_tStart), (_tCheck2-_tCheck1),(_tCheck3-_tCheck2),(_tEnd-_tCheck3) );
 		}
 	}
 
