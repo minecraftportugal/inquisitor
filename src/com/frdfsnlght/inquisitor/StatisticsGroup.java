@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -50,7 +51,8 @@ public final class StatisticsGroup {
 
     private long lastDelete = 0;
 
-    private final Map<String,Statistic> statistics = new HashMap<String,Statistic>();
+    //private final Map<String,Statistic> statistics = new HashMap<String,Statistic>();
+    private final ConcurrentHashMap<String,Statistic> statistics = new ConcurrentHashMap<String,Statistic>();
     private final Map<Object,Statistics> stats = new HashMap<Object,Statistics>();
 
     private List<BeforeFlushListener> beforeFlushListeners = new ArrayList<BeforeFlushListener>();
@@ -166,15 +168,15 @@ public final class StatisticsGroup {
     }
 
     public Collection<Statistic> getStatistics() {
-        synchronized (statistics) {
+        //synchronized (statistics) {
             return new HashSet<Statistic>(statistics.values());
-        }
+        //}
     }
 
     public Statistic getStatistic(String name) {
-        synchronized (statistics) {
+        //synchronized (statistics) {
             return statistics.get(name);
-        }
+        //}
     }
 
     public Collection<Statistics> getCachedStatistics() {
@@ -204,7 +206,7 @@ public final class StatisticsGroup {
         try {
             StringBuilder sql = new StringBuilder();
             sql.append("SELECT ");
-            synchronized (statistics) {
+            //synchronized (statistics) {
                 boolean addedMapped = false;
                 for (String statName : statistics.keySet()) {
                     if (statistics.get(statName).isMapped()) {
@@ -215,7 +217,7 @@ public final class StatisticsGroup {
                     } else
                         sql.append('`').append(statName).append("`,");
                 }
-            }
+            //}
             sql.deleteCharAt(sql.length() - 1);
             sql.append(" FROM ").append(DB.tableName(name));
             sql.append(" WHERE `").append(keyName).append("`=?");
@@ -243,13 +245,16 @@ public final class StatisticsGroup {
                 if (stmt != null) stmt.close();
             } catch (SQLException se) {}
         }
+        
+        s.set("online", true);
+        
         return s;
     }
 
     public Set<String> getStatisticsNames() {
-        synchronized (statistics) {
+        //synchronized (statistics) {
             return new HashSet<String>(statistics.keySet());
-        }
+        //}
     }
 
     public TypeMap loadStatistics(ResultSet rs) throws SQLException {
@@ -445,10 +450,10 @@ public final class StatisticsGroup {
                 }
             }
 
-            synchronized (statistics) {
+            //synchronized (statistics) {
                 for (Statistic statistic : statistics.values())
                     statistic.validate();
-            }
+            //}
 
         } catch (SQLException se) {
             Utils.severe("SQLException while validating %s: %s", this, se.getMessage());
