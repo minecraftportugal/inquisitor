@@ -187,6 +187,11 @@ public final class StatisticsGroup {
     public Statistics getStatistics(Object key) {
         Statistics s = stats.get(key);
         if (s != null) return s;
+        
+        long _tStart=0,_tCheck1=0,_tCheck2=0,_tEnd;
+        
+        if( Config.getDebugTimings() )
+        	_tStart = System.currentTimeMillis();
 
         switch (keyType) {
             case INTEGER:
@@ -195,12 +200,17 @@ public final class StatisticsGroup {
                     throw new IllegalArgumentException("key must be numeric");
                 break;
         }
+        
+        
         s = new Statistics(this, key);
         stats.put(key, s);
         if (! StatisticsManager.isStarted()) {
             s.setInvalid();
             return s;
         }
+        
+        if( Config.getDebugTimings() )
+        	_tCheck1 = System.currentTimeMillis();
 
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -236,7 +246,21 @@ public final class StatisticsGroup {
             }
             rs = stmt.executeQuery();
             if (! rs.next()) return s;
+            
+            if( Config.getDebugTimings() )
+            	_tCheck2 = System.currentTimeMillis();
+            
             s.load(rs);
+            
+            if( Config.getDebugTimings() )
+            {
+            	_tEnd = System.currentTimeMillis();
+            
+    			
+    			Utils.info("***Timings [getStatistics()] [P: %s, CP1: %dms, CP2: %dms, CP3: %dms]",
+    					key,
+    					(_tCheck1-_tStart), (_tCheck2-_tCheck1), (_tEnd-_tCheck2) );
+            }
 
         } catch (SQLException se) {
             Utils.severe("SQLException while loading statistics for %s key '%s': %s", this, key, se.getMessage());
