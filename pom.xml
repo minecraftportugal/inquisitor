@@ -4,6 +4,30 @@
   <artifactId>Inquisitor</artifactId>
   <version>2.27.9</version>
   <build>
+    <directory>target</directory>
+    <outputDirectory>target/classes</outputDirectory>
+    <!--finalName>${artifactId}-${version}</finalName-->
+    <!--testOutputDirectory>target/test-classes</testOutputDirectory-->
+    <sourceDirectory>src</sourceDirectory>
+    <!--scriptSourceDirectory>src/main/scripts</scriptSourceDirectory-->
+    <!--testSourceDirectory>src/test/java</testSourceDirectory-->
+    <resources>
+      <resource>
+        <directory>./</directory>
+        <excludes>
+          <exclude>**</exclude>
+        </excludes>
+        <includes>
+          <include>plugin.yml</include>
+          <include>resources</include>
+        </includes>
+      </resource>
+    </resources>
+    <!--testResources>
+      <testResource>
+        <directory>src/test/resources</directory>
+      </testResource>
+    </testResources-->
       <plugins>
           <plugin>
               <groupId>org.apache.maven.plugins</groupId>
