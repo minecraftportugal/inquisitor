@@ -391,8 +391,10 @@ public final class PlayerStats {
 		{
 			_tEnd = System.currentTimeMillis();
 			
-			Utils.info("**Timings [P: %s, TT: %dms, CP1: %dms, CP2: %dms, CP3: %dms,  CP4: %dms]", player.getName(),
-					(_tEnd-_tStart), (_tCheck1-_tStart), (_tCheck2-_tCheck1),(_tCheck3-_tCheck2),(_tEnd-_tCheck3) );
+			Utils.info("**Timings [P: %s, TT: %dms, CP1: %dms, CP2: %dms, CP3: %dms, CP4: %dms]", player.getName(),
+					(_tEnd-_tStart), (_tCheck1-_tStart),
+					(_tCheck2-_tCheck1),(_tCheck3-_tCheck2),
+					(_tEnd-_tCheck3) );
 		}
 	}
 

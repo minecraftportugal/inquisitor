@@ -51,8 +51,8 @@ public final class StatisticsGroup {
 
     private long lastDelete = 0;
 
-    //private final Map<String,Statistic> statistics = new HashMap<String,Statistic>();
-    private final ConcurrentHashMap<String,Statistic> statistics = new ConcurrentHashMap<String,Statistic>();
+    private final Map<String,Statistic> statistics = new HashMap<String,Statistic>();
+    //private final ConcurrentHashMap<String,Statistic> statistics = new ConcurrentHashMap<String,Statistic>();
     private final Map<Object,Statistics> stats = new HashMap<Object,Statistics>();
 
     private List<BeforeFlushListener> beforeFlushListeners = new ArrayList<BeforeFlushListener>();
@@ -166,12 +166,13 @@ public final class StatisticsGroup {
         for (Statistics s : stats.values())
             s.removeStatistic(statistic);
     }
-
-    public Collection<Statistic> getStatistics() {
-        //synchronized (statistics) {
-            return new HashSet<Statistic>(statistics.values());
-        //}
-    }
+    
+	public Collection<Statistic> getStatistics() {
+//		synchronized (statistics) {
+//			return new HashSet<Statistic>(statistics.values());
+//		}
+		return statistics.values();
+	}
 
     public Statistic getStatistic(String name) {
         //synchronized (statistics) {
@@ -251,11 +252,20 @@ public final class StatisticsGroup {
         return s;
     }
 
+//  public Set<String> getStatisticsNames() {
+//  //synchronized (statistics) {
+//      return new HashSet<String>(statistics.keySet());
+//  //}
+//}
+    
     public Set<String> getStatisticsNames() {
         //synchronized (statistics) {
-            return new HashSet<String>(statistics.keySet());
+    	return statistics.keySet();
+            //return new HashSet<String>(statistics.keySet());
         //}
     }
+    
+    
 
     public TypeMap loadStatistics(ResultSet rs) throws SQLException {
         return loadStatistics(rs, getStatisticsNames());
