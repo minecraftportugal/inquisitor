@@ -16,9 +16,11 @@
 package com.frdfsnlght.inquisitor.handlers.api;
 
 import com.frdfsnlght.inquisitor.DB;
+import com.frdfsnlght.inquisitor.DB.ConnectionType;
 import com.frdfsnlght.inquisitor.Utils;
 import com.frdfsnlght.inquisitor.WebRequest;
 import com.frdfsnlght.inquisitor.WebResponse;
+
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -47,7 +49,7 @@ public final class FindPlayersHandler extends APIHandler {
         PreparedStatement stmt = null;
         ResultSet rs = null;
         try {
-            Connection conn = DB.connect();
+            Connection conn = DB.connect(ConnectionType.BACKGROUND);
             StringBuilder sql = new StringBuilder();
             sql.append("SELECT name FROM ").append(DB.tableName("players"));
             sql.append(" WHERE name LIKE ?");

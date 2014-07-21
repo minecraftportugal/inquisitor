@@ -15,6 +15,7 @@
  */
 package com.frdfsnlght.inquisitor;
 
+import com.frdfsnlght.inquisitor.DB.ConnectionType;
 import com.frdfsnlght.inquisitor.Statistic.Type;
 import com.frdfsnlght.inquisitor.StatisticsGroup.BeforeFlushListener;
 import com.frdfsnlght.inquisitor.StatisticsManager.JoinJob;
@@ -859,7 +860,7 @@ public final class PlayerStats {
 		ResultSet rs = null;
 		try {
 			stmt = DB.prepare("SELECT `name` FROM "
-					+ DB.tableName(group.getName()) + " WHERE `bedServer`=?");
+					+ DB.tableName(group.getName()) + " WHERE `bedServer`=?", ConnectionType.BACKGROUND);
 			stmt.setString(1, Global.plugin.getServer().getServerName());
 			rs = stmt.executeQuery();
 			while (rs.next()) {
@@ -900,7 +901,7 @@ public final class PlayerStats {
 		PreparedStatement stmt = null;
 		try {
 			stmt = DB.prepare("UPDATE " + DB.tableName(group.getName())
-					+ " SET `online`=0 WHERE `online`=1 AND `server`=?");
+					+ " SET `online`=0 WHERE `online`=1 AND `server`=?", ConnectionType.BACKGROUND);
 			stmt.setString(1, Global.plugin.getServer().getServerName());
 			stmt.executeUpdate();
 		} catch (SQLException se) {

@@ -17,10 +17,13 @@ package com.frdfsnlght.inquisitor.command;
 
 import com.frdfsnlght.inquisitor.Context;
 import com.frdfsnlght.inquisitor.DB;
+import com.frdfsnlght.inquisitor.DB.ConnectionType;
 import com.frdfsnlght.inquisitor.InquisitorException;
 import com.frdfsnlght.inquisitor.Permissions;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import org.bukkit.command.Command;
 
 /**
@@ -57,7 +60,7 @@ public class DBCommands  extends CommandProcessor {
 
         if ("status".startsWith(subCmd)) {
             Permissions.require(ctx.getPlayer(), "inq.db.status");
-            ctx.send("database %s connected", DB.isConnected() ? "is" : "is not");
+            ctx.send("database %s connected", DB.isConnected(ConnectionType.BACKGROUND) ? "is" : "is not");
             return;
         }
 

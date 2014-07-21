@@ -16,10 +16,12 @@
 package com.frdfsnlght.inquisitor.handlers;
 
 import com.frdfsnlght.inquisitor.DB;
+import com.frdfsnlght.inquisitor.DB.ConnectionType;
 import com.frdfsnlght.inquisitor.TypeMap;
 import com.frdfsnlght.inquisitor.Utils;
 import com.frdfsnlght.inquisitor.WebRequest;
 import com.frdfsnlght.inquisitor.WebResponse;
+
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.sql.Connection;
@@ -49,7 +51,7 @@ public final class PlayerSearchHandler extends TemplateHandler {
         PreparedStatement stmt = null;
         ResultSet rs = null;
         try {
-            Connection conn = DB.connect();
+            Connection conn = DB.connect(ConnectionType.BACKGROUND);
             StringBuilder sql = new StringBuilder();
             sql.append("SELECT name FROM ").append(DB.tableName("players"));
             sql.append(" WHERE name LIKE ?");

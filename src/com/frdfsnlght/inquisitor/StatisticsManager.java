@@ -15,6 +15,7 @@
  */
 package com.frdfsnlght.inquisitor;
 
+import com.frdfsnlght.inquisitor.DB.ConnectionType;
 import com.frdfsnlght.inquisitor.DB.DBListener;
 
 import java.sql.Clob;
@@ -98,7 +99,7 @@ public final class StatisticsManager {
     public static void start() {
         if (started) return;
         try {
-            if (! DB.isConnected())
+            if (! DB.isConnected(ConnectionType.BACKGROUND))
                 throw new Exception("database is not connected");
 
             for (StatisticsGroup group : groups.values())

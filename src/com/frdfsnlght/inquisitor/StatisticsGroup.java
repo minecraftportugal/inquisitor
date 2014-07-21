@@ -15,6 +15,7 @@
  */
 package com.frdfsnlght.inquisitor;
 
+import com.frdfsnlght.inquisitor.DB.ConnectionType;
 import com.frdfsnlght.inquisitor.Statistic.Type;
 
 import java.sql.Clob;
@@ -202,7 +203,6 @@ public final class StatisticsGroup {
                 break;
         }
         
-        
         s = new Statistics(this, key);
         stats.put(key, s);
         if (! StatisticsManager.isStarted()) {
@@ -233,7 +233,7 @@ public final class StatisticsGroup {
             sql.deleteCharAt(sql.length() - 1);
             sql.append(" FROM ").append(DB.tableName(name));
             sql.append(" WHERE `").append(keyName).append("`=?");
-            stmt = DB.prepare(sql.toString());
+            stmt = DB.prepare(sql.toString(), ConnectionType.FOREGROUND);
             switch (keyType) {
                 case INTEGER:
                     stmt.setInt(1, ((Number)key).intValue());
@@ -402,7 +402,7 @@ public final class StatisticsGroup {
     public void delete() {
         if (((System.currentTimeMillis() - lastDelete) <= getDeleteInterval()) ||
             (getDeleteAge() <= 0) ||
-            (! DB.isConnected())) return;
+            (! DB.isConnected(ConnectionType.BACKGROUND))) return;
 
         lastDelete = System.currentTimeMillis();
 
@@ -443,14 +443,14 @@ public final class StatisticsGroup {
     }
 
     public void validate() {
-        if (! DB.isConnected()) return;
+        if (! DB.isConnected(ConnectionType.BACKGROUND)) return;
 
         PreparedStatement stmt = null;
         ResultSet rs = null;
         try {
             StringBuilder sql = new StringBuilder();
 
-            if (! DB.tableExists(name)) {
+            if (! DB.tableExists(name, ConnectionType.BACKGROUND)) {
                 sql.append("CREATE TABLE ").append(DB.tableName(name)).append('(');
                 sql.append("`id` int NOT NULL AUTO_INCREMENT,");
                 sql.append("`").append(keyName).append("` ").append(keyType.getSQLDef(keySize)).append(',');
@@ -504,7 +504,7 @@ public final class StatisticsGroup {
     }
 
     public boolean validateColumn(String colName, Type type, int size, String def, Set<String> oldNames) {
-        if (! DB.isConnected()) return false;
+        if (! DB.isConnected(ConnectionType.BACKGROUND)) return false;
 
         StringBuilder colDef = new StringBuilder();
         colDef.append('`').append(colName).append("` ").append(type.getSQLDef(size, def));
