@@ -185,13 +185,14 @@ public final class StatisticsGroup {
     }
 
     public Statistics getStatistics(Object key) {
-        Statistics s = stats.get(key);
-        if (s != null) return s;
-        
-        long _tStart=0,_tCheck1=0,_tCheck2=0,_tEnd;
+    	
+        long _tStart=0,_tCheck1=0,_tCheck2=0,_tCheck3=0,_tEnd;
         
         if( Config.getDebugTimings() )
         	_tStart = System.currentTimeMillis();
+        
+        Statistics s = stats.get(key);
+        if (s != null) return s;
 
         switch (keyType) {
             case INTEGER:
@@ -251,16 +252,6 @@ public final class StatisticsGroup {
             	_tCheck2 = System.currentTimeMillis();
             
             s.load(rs);
-            
-            if( Config.getDebugTimings() )
-            {
-            	_tEnd = System.currentTimeMillis();
-            
-    			
-    			Utils.info("***Timings [getStatistics()] [P: %s, CP1: %dms, CP2: %dms, CP3: %dms]",
-    					key,
-    					(_tCheck1-_tStart), (_tCheck2-_tCheck1), (_tEnd-_tCheck2) );
-            }
 
         } catch (SQLException se) {
             Utils.severe("SQLException while loading statistics for %s key '%s': %s", this, key, se.getMessage());
@@ -271,7 +262,20 @@ public final class StatisticsGroup {
             } catch (SQLException se) {}
         }
         
+        if( Config.getDebugTimings() )
+        	_tCheck3 = System.currentTimeMillis();
+        
         s.set("online", true);
+        
+        if( Config.getDebugTimings() )
+        {
+        	_tEnd = System.currentTimeMillis();
+        
+			
+			Utils.info("***Timings [getStatistics()] [P: %s, CP1: %dms, CP2: %dms, CP3: %dms, CP4: %dms]",
+					key,
+					(_tCheck1-_tStart), (_tCheck2-_tCheck1), (_tCheck3-_tCheck2), (_tEnd-_tCheck3) );
+        }
         
         return s;
     }
