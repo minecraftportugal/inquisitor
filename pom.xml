@@ -14,13 +14,13 @@
     <resources>
       <resource>
         <directory>./</directory>
-        <excludes>
-          <exclude>**</exclude>
-        </excludes>
         <includes>
           <include>plugin.yml</include>
-          <include>resources</include>
+          <include>resources/</include>
         </includes>
+        <!--excludes>
+          <exclude>**</exclude>
+        </excludes-->
       </resource>
     </resources>
     <!--testResources>
